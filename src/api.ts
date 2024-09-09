@@ -7,7 +7,7 @@ export async function APIGet(endpoint: string): Promise<{ statusCode: number; da
   try {
     const response = await axios.get(`${url}${endpoint}`, {
       params: {
-        token: 'owPJprpLaTEGPcPTczWqyJjfoyVNGOUfUCNJJGBH',
+        token: 'token_here',
       },
     });
 
