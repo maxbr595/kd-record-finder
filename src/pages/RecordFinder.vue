@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import RecordFinder from './pages/RecordFinder.vue'
+
+import Search from "../components/Search.vue";
+
 </script>
 
 <template>
-<RecordFinder />
+<Search></Search>
 </template>
 
 <style scoped>
