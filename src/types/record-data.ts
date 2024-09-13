@@ -1,25 +1,27 @@
 export interface RecordData {
-  country: string;
-  year: number;
-  format: string[];
-  label: string[];
-  type: string;
-  genre: string[];
-  style: string[];
-  id: number;
   barcode: string[];
-  user_data: {
-    master_id: number;
-    master_url: string;
-    uri: string;
-    catno: string;
-    title: string;
-    thumb: string;
-    cover_image: string;
-    resource_url: string;
-  };
   community: {
     have: number;
-    want: number;
+		want: number;
   };
+	country: string;
+  format: string[];
+  genre: string[];
+  id: number;
+  label: string[];
+  master_id: number;
+  master_url: string;
+  resource_url: string;
+  style: string[];
+  thumb: string;
+  title: string;
+  type: string;
+  uri: string;
+  user_data: {
+		in_collection: boolean;
+		in_wantlist: boolean
+  };
+  catno: string;
+  cover_image: string;
+	year: number;
 }

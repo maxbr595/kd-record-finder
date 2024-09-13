@@ -5,31 +5,36 @@ import { useDiscogsStore } from '../stores/useDiscogsStore';
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import ProgressSpinner from 'primevue/progressspinner'
-import Message from 'primevue/message'
 import Card from 'primevue/card'
+import { useToast } from 'primevue/usetoast';
 
+const toast = useToast();
 const query = ref('');
 const hasSearched = ref(false);
 const discogsStore = useDiscogsStore();
 
-const search = () => {
-	if (query.value.trim()) {
-		hasSearched.value = true;
-		discogsStore.searchRecords(query.value);
-	}
+const search = async () => {
+  if (query.value.trim()) {
+    hasSearched.value = true;
+    const result = await discogsStore.searchRecords(query.value);
+    if (result.success) {
+      toast.add({ severity: 'success', summary: 'Success', detail: result.message, life: 3000 });
+    } else {
+			toast.add({ severity: 'error', summary: 'Error', detail: result.message, life: 3000 });
+		}
+  }
 };
+
 </script>
 
 <template>
 	<div class="p-4 flex flex-column">
-		<div class="flex flex-row">
+		<div class="flex flex-row mb-2">
 			<InputText v-model="query" placeholder="Zoek records..." class="w-full" @keyup.enter="search" />
 			<Button @click="search" label="Search"></Button>
 		</div>
 
 		<ProgressSpinner v-if="discogsStore.loading" class="text-center" />
-
-		<Message v-if="discogsStore.error" severity="error">{{ discogsStore.error }}</Message>
 
 		<div v-if="discogsStore.recordData.length" class="grid">
 			<div v-for="record in discogsStore.recordData" :key="record.id" class="col-12 md:col-6 lg:col-4 p-2">
@@ -41,15 +46,9 @@ const search = () => {
 						{{ record.title }}
 					</template>
 					<template #content>
-						<p>{{ record.artist }}</p>
 					</template>
 				</Card>
 			</div>
 		</div>
-
-		<Message v-if="hasSearched && !discogsStore.recordData.length && !discogsStore.loading && !discogsStore.error"
-			severity="info">
-			Niks gevonden.
-		</Message>
 	</div>
 </template>

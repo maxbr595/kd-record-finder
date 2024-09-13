@@ -5,12 +5,14 @@ import App from './App.vue';
 
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
+import ToastService from 'primevue/toastservice';
 
 import Aura from '@primevue/themes/aura';
 
 const app = createApp(App);
 const pinia = createPinia();
 
+app.use(ToastService);
 app.use(pinia);
 app.use(PrimeVue, {
 	ripple: true,

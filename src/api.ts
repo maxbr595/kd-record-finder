@@ -2,12 +2,14 @@ import axios from 'axios';
 import { Nullable } from './types/basic-types';
 
 const url = 'https://api.discogs.com';
+//token komt uit env bestand zodat het dynamisch is
+const token = import.meta.env.DISCOGS_API_TOKEN;
 
 export async function APIGet(endpoint: string): Promise<{ statusCode: number; data?: Nullable<any> }> {
   try {
     const response = await axios.get(`${url}${endpoint}`, {
       params: {
-        token: 'owPJprpLaTEGPcPTczWqyJjfoyVNGOUfUCNJJGBH',
+        token: token,
       },
     });
 
@@ -15,7 +17,7 @@ export async function APIGet(endpoint: string): Promise<{ statusCode: number; da
       statusCode: response.status,
       data: response.data,
     };
-  } catch (error:any) {
+  } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       return {
         statusCode: error.response.status,

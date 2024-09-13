@@ -3,10 +3,15 @@ import { APIGet } from '../api';
 import { APIResult } from '../types/api-result';
 import { RecordData } from '../types/record-data';
 
+//initial state is hndig voor resetten van state, als het ooit nodig is
+const initialState = {
+	recordData: [] as RecordData[],
+  loading: false,
+}
+
 export const useDiscogsStore = defineStore('discogs', {
   state: () => ({
-    recordData: [] as RecordData[],
-    loading: false,
+    ...initialState
   }),
   actions: {
     async searchRecords(query: string): Promise<APIResult> {
