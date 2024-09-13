@@ -3,7 +3,7 @@ import { Nullable } from './types/basic-types';
 
 const url = 'https://api.discogs.com';
 //token komt uit env bestand zodat het dynamisch is
-const token = import.meta.env.DISCOGS_API_TOKEN;
+const token = import.meta.env.VITE_DISCOGS_API_TOKEN;
 
 export async function APIGet(endpoint: string): Promise<{ statusCode: number; data?: Nullable<any> }> {
   try {
