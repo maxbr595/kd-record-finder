@@ -3,6 +3,7 @@ import { createPinia } from 'pinia';
 import PrimeVue from 'primevue/config';
 import App from './App.vue';
 
+import './style.css'
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import ToastService from 'primevue/toastservice';
