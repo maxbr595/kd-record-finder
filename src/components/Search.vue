@@ -39,7 +39,21 @@ function showRecordDetails(masterId: number) {
 }
 
 function clearFilters() {
-	discogsStore.clearFilters();
+	discogsStore.clearSelectedFilters();
+}
+
+function getDiscogsShoppingUrl(record: any) {
+	if (record.master_id) {
+		return `https://www.discogs.com/sell/list?master_id=${record.master_id}&ev=mb`;
+	} else if (record.id) {
+		return `https://www.discogs.com/sell/release/${record.id}&?ev=rb`;
+	}
+	return '';
+}
+
+function openDiscogsShoppingPage(record: any) {
+	const url = getDiscogsShoppingUrl(record);
+	window.open(url, '_blank');
 }
 </script>
 
@@ -66,18 +80,21 @@ function clearFilters() {
 
 		<div v-if="discogsStore.uniqueRecords.length" class="grid">
 			<div v-for="record in discogsStore.uniqueRecords" :key="record.id" class="col-12 md:col-6 lg:col-4 p-2">
-				<Card class="h-full cursor-pointer flex flex-column" @click="showRecordDetails(record.master_id || record.id)">
+				<Card class="h-full flex flex-column">
 					<template #header>
-						<img :src="record.cover_image" :alt="record.title" class="w-full border-round" />
+						<img :src="record.cover_image" :alt="record.title" class="w-full border-round cursor-pointer" @click="showRecordDetails(record.master_id || record.id)" />
 					</template>
 					<template #title>
-						<div class="m-0">{{ record.title || 'N/A' }}</div>
+						<div class="m-0 cursor-pointer" @click="showRecordDetails(record.master_id || record.id)">{{ record.title || 'N/A' }}</div>
 					</template>
 					<template #content>
-						<p class="m-0 ">Jaar: {{ record.year || 'N/A' }}</p>
+						<p class="m-0">Jaar: {{ record.year || 'N/A' }}</p>
 						<p class="m-0">Genre: {{ record.genre && record.genre.length ? record.genre.join(', ') : 'N/A' }}</p>
 						<p class="m-0">Format: {{ record.format && record.format.length ? record.format.join(', ') : 'N/A' }}</p>
 						<p class="m-0">Land: {{ record.country || 'N/A' }}</p>
+					</template>
+					<template #footer>
+						<Button label="Discogs" link @click="openDiscogsShoppingPage(record)" />
 					</template>
 				</Card>
 			</div>

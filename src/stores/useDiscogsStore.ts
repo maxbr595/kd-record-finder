@@ -3,22 +3,26 @@ import { APIGet } from '../api';
 import { APIResult } from '../types/api-result';
 import { RecordData } from '../types/record-data';
 
-const initialFilterState = {
+const initialSelectedFiltersState = {
   selectedYears: [] as number[],
   selectedGenres: [] as string[],
   selectedFormats: [] as string[],
   selectedCountries: [] as string[],
 };
 
+const initialFilterState = {
+	years: [] as number[],
+  genres: [] as string[],
+  formats: [] as string[],
+  countries: [] as string[],
+}
+
 //initial state is hndig voor resetten van state, als het ooit nodig is
 const initialState = {
   records: {} as Record<number, RecordData[]>,
   loading: false,
-  years: [] as number[],
-  genres: [] as string[],
-  formats: [] as string[],
-  countries: [] as string[],
-  ...initialFilterState
+	...initialSelectedFiltersState,
+  ...initialFilterState,
 }
 
 export const useDiscogsStore = defineStore('discogs', {
@@ -57,7 +61,9 @@ export const useDiscogsStore = defineStore('discogs', {
   
   actions: {
     async searchRecords(query: string): Promise<APIResult> {
-			this.clearFilters()
+			this.clearSelectedFilters();
+			this.clearFilters();
+
       this.loading = true;
 
       const { statusCode, data } = await APIGet(`/database/search?q=${query}`);
@@ -121,8 +127,11 @@ export const useDiscogsStore = defineStore('discogs', {
 			this.countries = countries.sort();
 		},
 
-    clearFilters() {
-      Object.assign(this, initialFilterState);
+    clearSelectedFilters() {
+      Object.assign(this, initialSelectedFiltersState);
     },
+		clearFilters() {
+			Object.assign(this, initialFilterState);
+		},
   },
 });
