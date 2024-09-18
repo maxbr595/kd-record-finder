@@ -8,6 +8,7 @@ import Button from 'primevue/button';
 import ProgressSpinner from 'primevue/progressspinner';
 import Card from 'primevue/card';
 import Dialog from 'primevue/dialog';
+import MultiSelect from 'primevue/multiselect';
 import { useToast } from 'primevue/usetoast';
 import { APIResult } from '../types/api-result';
 
@@ -19,53 +20,71 @@ const showDialog = ref(false);
 const selectedMasterId = ref<number | null>(null);
 
 function search() {
-  if (query.value) {
-    hasSearched.value = true;
-    discogsStore.searchRecords(query.value)
-      .then((result: APIResult) => {
-        if (result.success) {
-          toast.add({ severity: 'success', summary: 'Success', detail: result.message, life: 3000 });
-        } else {
-          toast.add({ severity: 'error', summary: 'Error', detail: result.message, life: 3000 });
-        }
-      });
-  }
+	if (query.value) {
+		hasSearched.value = true;
+		discogsStore.searchRecords(query.value)
+			.then((result: APIResult) => {
+				if (result.success) {
+					toast.add({ severity: 'success', summary: 'Success', detail: result.message, life: 3000 });
+				} else {
+					toast.add({ severity: 'error', summary: 'Error', detail: result.message, life: 3000 });
+				}
+			});
+	}
 }
 
 function showRecordDetails(masterId: number) {
-  selectedMasterId.value = masterId;
-  showDialog.value = true;
+	selectedMasterId.value = masterId;
+	showDialog.value = true;
+}
+
+function clearFilters() {
+	discogsStore.clearFilters();
 }
 </script>
 
 <template>
-  <div class="p-4 flex flex-column">
-    <div class="flex flex-row mb-2">
-      <InputText v-model="query" placeholder="Zoek records..." class="w-full" @keyup.enter="search" />
-      <Button @click="search" label="Zoek"></Button>
-    </div>
+	<div class="p-4 flex flex-column">
+		<div class="flex flex-row mb-2">
+			<InputText v-model="query" placeholder="Zoek records..." class="w-full" @keyup.enter="search" />
+			<Button @click="search" label="Zoek"></Button>
+		</div>
 
-    <ProgressSpinner v-if="discogsStore.loading" class="text-center" />
+		<div v-if="hasSearched" class="flex flex-wrap mb-2 gap-2">
+			<MultiSelect v-model="discogsStore.selectedYears" :options="discogsStore.years" placeholder="Filter jaar"
+				class="w-full sm:w-auto" />
+			<MultiSelect v-model="discogsStore.selectedGenres" :options="discogsStore.genres" placeholder="Filter genre"
+				class="w-full sm:w-auto" />
+			<MultiSelect v-model="discogsStore.selectedFormats" :options="discogsStore.formats" placeholder="Filter format"
+				class="w-full sm:w-auto" />
+			<MultiSelect v-model="discogsStore.selectedCountries" :options="discogsStore.countries" placeholder="Filter land"
+				class="w-full sm:w-auto" />
+			<Button @click="clearFilters" label="Clear Filters" class="p-button-secondary"></Button>
+		</div>
 
-    <div v-if="discogsStore.uniqueRecords.length" class="grid">
-      <div v-for="record in discogsStore.uniqueRecords" :key="record.id" class="col-12 md:col-6 lg:col-4 p-2">
-        <Card class="h-full cursor-pointer" @click="showRecordDetails(record.master_id || record.id)">
-          <template #header>
-            <img :src="record.cover_image" :alt="record.title" class="w-full border-round" />
-          </template>
-          <template #title>
-            {{ record.title || 'N/A' }}
-          </template>
-          <template #content>
-            <p>{{ record.year || 'N/A' }}</p>
-            <p>{{ record.genre && record.genre.length ? record.genre.join(', ') : 'N/A' }}</p>
-          </template>
-        </Card>
-      </div>
-    </div>
+		<ProgressSpinner v-if="discogsStore.loading" class="text-center" />
 
-    <Dialog v-model:visible="showDialog" :style="{ width: '90vw' }" :modal="true">
-      <RecordDetails v-if="selectedMasterId" :masterId="selectedMasterId" />
-    </Dialog>
-  </div>
+		<div v-if="discogsStore.uniqueRecords.length" class="grid">
+			<div v-for="record in discogsStore.uniqueRecords" :key="record.id" class="col-12 md:col-6 lg:col-4 p-2">
+				<Card class="h-full cursor-pointer flex flex-column" @click="showRecordDetails(record.master_id || record.id)">
+					<template #header>
+						<img :src="record.cover_image" :alt="record.title" class="w-full border-round" />
+					</template>
+					<template #title>
+						<div class="m-0">{{ record.title || 'N/A' }}</div>
+					</template>
+					<template #content>
+						<p class="m-0 ">Jaar: {{ record.year || 'N/A' }}</p>
+						<p class="m-0">Genre: {{ record.genre && record.genre.length ? record.genre.join(', ') : 'N/A' }}</p>
+						<p class="m-0">Format: {{ record.format && record.format.length ? record.format.join(', ') : 'N/A' }}</p>
+						<p class="m-0">Land: {{ record.country || 'N/A' }}</p>
+					</template>
+				</Card>
+			</div>
+		</div>
+
+		<Dialog v-model:visible="showDialog" :style="{ width: '90vw' }" :modal="true">
+			<RecordDetails v-if="selectedMasterId" :masterId="selectedMasterId" />
+		</Dialog>
+	</div>
 </template>
