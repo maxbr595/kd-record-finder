@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { APIGet } from '../api';
 import { APIResult } from '../types/api-result';
 import { RecordData } from '../types/record-data';
+import { ArtistData } from '../types/artist-data';
 
 const initialSelectedFiltersState = {
   selectedYears: [] as number[],
@@ -11,7 +12,7 @@ const initialSelectedFiltersState = {
 };
 
 const initialFilterState = {
-	years: [] as number[],
+  years: [] as number[],
   genres: [] as string[],
   formats: [] as string[],
   countries: [] as string[],
@@ -20,8 +21,10 @@ const initialFilterState = {
 //initial state is hndig voor resetten van state, als het ooit nodig is
 const initialState = {
   records: {} as Record<number, RecordData[]>,
+  artists: [] as ArtistData[],
   loading: false,
-	...initialSelectedFiltersState,
+  isArtistSearch: false,
+  ...initialSelectedFiltersState,
   ...initialFilterState,
 }
 
@@ -44,7 +47,6 @@ export const useDiscogsStore = defineStore('discogs', {
           return yearMatch && genreMatch && formatMatch && countryMatch;
         });
     },
-    
     groupedVariants: (state) => (masterId: number) => {
       const variants = state.records[masterId] || [];
       const groups: Record<string, RecordData[]> = {};
@@ -54,20 +56,18 @@ export const useDiscogsStore = defineStore('discogs', {
         if (!groups[year]) groups[year] = [];
         groups[year].push(variant);
       });
-      //voor de volgorde van het juiste jaar van releases
+			//voor de volgorde van het juiste jaar van releases
       return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
     }
   },
   
   actions: {
     async searchRecords(query: string): Promise<APIResult> {
-			this.clearSelectedFilters();
-			this.clearFilters();
-
+      this.clearSelectedFilters();
+      this.clearFilters();
       this.loading = true;
 
       const { statusCode, data } = await APIGet(`/database/search?q=${query}`);
-      
       if (statusCode === 200 && data) {
         const allRecords = data.results as RecordData[];
         this.records = this.groupRecordsByMasterId(allRecords);
@@ -79,7 +79,21 @@ export const useDiscogsStore = defineStore('discogs', {
       this.loading = false;
       return Promise.resolve({ success: false, message: 'Records ophalen mislukt' });
     },
-    
+    async searchArtists(query: string): Promise<APIResult> {
+      this.loading = true;
+      this.artists = [];
+
+      const { statusCode, data } = await APIGet(`/database/search?q=${query}&type=artist`);
+      
+      if (statusCode === 200 && data && Array.isArray(data.results)) {
+        this.artists = data.results as ArtistData[];
+        this.loading = false;
+        return Promise.resolve({ success: true, message: 'Artists retrieved successfully' });
+      }
+      
+      this.loading = false;
+      return Promise.resolve({ success: false, message: 'Failed to retrieve artists or no artists found' });
+    },
     groupRecordsByMasterId(records: RecordData[]) {
       const grouped: Record<number, RecordData[]> = {};
     
@@ -93,45 +107,44 @@ export const useDiscogsStore = defineStore('discogs', {
       }
       return grouped;
     },
-		updateFilterOptions(records: RecordData[]) {
-			const years: number[] = [];
-			const genres: string[] = [];
-			const formats: string[] = [];
-			const countries: string[] = [];
-		
-			records.forEach(record => {
-				if (record.year && !years.includes(record.year)) {
-					years.push(record.year);
-				}
-				
-				record.genre?.forEach(genre => {
-					if (!genres.includes(genre)) {
-						genres.push(genre);
-					}
-				});
-				
-				record.format?.forEach(format => {
-					if (!formats.includes(format)) {
-						formats.push(format);
-					}
-				});
-				
-				if (record.country && !countries.includes(record.country)) {
-					countries.push(record.country);
-				}
-			});
-		
-			this.years = years.sort((a, b) => a - b);
-			this.genres = genres.sort();
-			this.formats = formats.sort();
-			this.countries = countries.sort();
-		},
-
+    updateFilterOptions(records: RecordData[]) {
+      const years: number[] = [];
+      const genres: string[] = [];
+      const formats: string[] = [];
+      const countries: string[] = [];
+    
+      records.forEach(record => {
+        if (record.year && !years.includes(record.year)) {
+          years.push(record.year);
+        }
+        
+        record.genre?.forEach(genre => {
+          if (!genres.includes(genre)) {
+            genres.push(genre);
+          }
+        });
+        
+        record.format?.forEach(format => {
+          if (!formats.includes(format)) {
+            formats.push(format);
+          }
+        });
+        
+        if (record.country && !countries.includes(record.country)) {
+          countries.push(record.country);
+        }
+      });
+    
+      this.years = years.sort((a, b) => a - b);
+      this.genres = genres.sort();
+      this.formats = formats.sort();
+      this.countries = countries.sort();
+    },
     clearSelectedFilters() {
       Object.assign(this, initialSelectedFiltersState);
     },
-		clearFilters() {
-			Object.assign(this, initialFilterState);
-		},
+    clearFilters() {
+      Object.assign(this, initialFilterState);
+    },
   },
 });
