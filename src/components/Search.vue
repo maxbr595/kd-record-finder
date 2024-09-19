@@ -74,26 +74,26 @@ function openDiscogsArtistPage(artist: any) {
 <template>
   <div class="p-4 flex flex-column">
     <div class="flex flex-row mb-2 items-center">
-      <Checkbox :modelValue="discogsStore.isArtistSearch" @update:modelValue="toggleSearchType" :binary="true" class="mr-2" />
+      <Checkbox :modelValue="discogsStore.isArtistSearch" @update:modelValue="toggleSearchType" :binary="true" class="mr-2"></Checkbox>
       <label for="isArtistSearch">Zoek artiesten</label>
     </div>
     <div class="flex flex-row mb-2">
-      <InputText v-model="query" :placeholder="discogsStore.isArtistSearch ? 'Search artists...' : 'Search records...'" class="w-full" @keyup.enter="search" />
+      <InputText v-model="query" :placeholder="discogsStore.isArtistSearch ? 'Search artists...' : 'Search records...'" class="w-full" @keyup.enter="search"></InputText>
       <Button @click="search" label="Search"></Button>
     </div>
     <div v-if="hasSearched && !discogsStore.isArtistSearch" class="flex flex-wrap mb-2 gap-2">
       <MultiSelect v-model="discogsStore.selectedYears" :options="discogsStore.years" placeholder="Filter jaar"
-        class="w-full sm:w-auto" />
+        class="w-full sm:w-auto"></MultiSelect>
       <MultiSelect v-model="discogsStore.selectedGenres" :options="discogsStore.genres" placeholder="Filter genre"
-        class="w-full sm:w-auto" />
+        class="w-full sm:w-auto"></MultiSelect>
       <MultiSelect v-model="discogsStore.selectedFormats" :options="discogsStore.formats" placeholder="Filter format"
-        class="w-full sm:w-auto" />
+        class="w-full sm:w-auto"></MultiSelect>
       <MultiSelect v-model="discogsStore.selectedCountries" :options="discogsStore.countries" placeholder="Filter land"
-        class="w-full sm:w-auto" />
+        class="w-full sm:w-auto"></MultiSelect>
       <Button @click="clearFilters" label="Clear Filters" class="p-button-secondary"></Button>
     </div>
 
-    <ProgressSpinner v-if="discogsStore.loading" class="text-center" />
+    <ProgressSpinner v-if="discogsStore.loading" class="text-center"></ProgressSpinner>
 
     <div v-if="!discogsStore.isArtistSearch && discogsStore.uniqueRecords.length" class="grid">
       <div v-for="record in discogsStore.uniqueRecords" :key="record.id" class="col-12 md:col-6 lg:col-4 p-2">
@@ -111,7 +111,7 @@ function openDiscogsArtistPage(artist: any) {
             <p class="m-0">Land: {{ record.country || 'N/A' }}</p>
           </template>
           <template #footer>
-            <Button label="Discogs" link @click="openDiscogsShoppingPage(record)" />
+            <Button label="Discogs" link @click="openDiscogsShoppingPage(record)"></Button>
           </template>
         </Card>
       </div>
@@ -127,7 +127,7 @@ function openDiscogsArtistPage(artist: any) {
             <div class="m-0">{{ artist.title || 'N/A' }}</div>
           </template>
           <template #footer>
-            <Button label="Discogs" link @click="openDiscogsArtistPage(artist)" />
+            <Button label="Discogs" link @click="openDiscogsArtistPage(artist)"></Button>
           </template>
         </Card>
       </div>
