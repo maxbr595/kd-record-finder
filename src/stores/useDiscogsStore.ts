@@ -68,7 +68,7 @@ export const useDiscogsStore = defineStore('discogs', {
       this.loading = true;
 
       const { statusCode, data } = await APIGet(`/database/search?q=${query}`);
-      if (statusCode === 200 && data) {
+      if (statusCode === 200 && data.results.length !== 0) {
         const allRecords = data.results as RecordData[];
         this.records = this.groupRecordsByMasterId(allRecords);
         this.updateFilterOptions(allRecords);
@@ -85,28 +85,29 @@ export const useDiscogsStore = defineStore('discogs', {
 
       const { statusCode, data } = await APIGet(`/database/search?q=${query}&type=artist`);
       
-      if (statusCode === 200 && data && Array.isArray(data.results)) {
+      if (statusCode === 200 && data.results.length !== 0) {
         this.artists = data.results as ArtistData[];
         this.loading = false;
-        return Promise.resolve({ success: true, message: 'Artists retrieved successfully' });
+        return Promise.resolve({ success: true, message: 'Artist ophalen gelukt' });
       }
       
       this.loading = false;
-      return Promise.resolve({ success: false, message: 'Failed to retrieve artists or no artists found' });
+      return Promise.resolve({ success: false, message: 'Artist ophalen mislukt' });
     },
     groupRecordsByMasterId(records: RecordData[]) {
-      const grouped: Record<number, RecordData[]> = {};
-    
-      for (const record of records) {
-        const masterId = record.master_id || record.id;
-    
-        if (!grouped[masterId]) {
-          grouped[masterId] = [];
-        }
-        grouped[masterId].push(record);
-      }
-      return grouped;
-    },
+			const grouped: Record<number, RecordData[]> = {};
+		
+			records.forEach(record => {
+				const masterId = record.master_id || record.id;
+		
+				if (!grouped[masterId]) {
+					grouped[masterId] = [];
+				}
+				grouped[masterId].push(record);
+			});
+		
+			return grouped;
+		},
     updateFilterOptions(records: RecordData[]) {
       const years: number[] = [];
       const genres: string[] = [];
